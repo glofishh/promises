@@ -28,7 +28,18 @@ var getGitHubProfile = function(user, callback) {
 };
 
 var getGitHubProfileAsync; // TODO
-
+  var options = {
+    url: 'https://api.github.com/users/' + user,
+    headers: { 'User-Agent': 'request' },
+    json: true // will JSON.parse(body) for us
+  };
+  return new Promise(function(resolve, reject) {
+    request.get(options, function(err, res, body) {
+      if(err){reject(err)}
+      else if (body.message) {reject(new Error('Failed to get GitHub profile: ' + body.message))}
+    })
+  })
+}
 
 // (2) Asyncronous token generation
 var generateRandomToken = function(callback) {
@@ -39,6 +50,13 @@ var generateRandomToken = function(callback) {
 };
 
 var generateRandomTokenAsync; // TODO
+  return new Promise(function(resolve, reject) {
+    crypto.randomBytes(20, function(err, buffer) {
+      if (err) {reject(err)}
+      else (resolve(buffer.toString('hex')))
+    })
+  })
+}
 
 
 // (3) Asyncronous file manipulation
@@ -55,6 +73,22 @@ var readFileAndMakeItFunny = function(filePath, callback) {
     callback(funnyFile);
   });
 };
+
+var readFileAndMakeItFunnyAsync = function(filePath) {
+  return new Promise(function(resolve, reject){
+    fs.readFile(filePath, 'utf8', function(err, file ){
+      if(err) {
+        reject(err)
+      } else {
+        resolve(file.split('\n')
+        .map(function(line) {
+          return line + ' lol';
+          })
+          .join('\n'))
+      }
+  })
+  })
+}
 
 var readFileAndMakeItFunnyAsync; // TODO
 
